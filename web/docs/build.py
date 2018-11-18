@@ -453,6 +453,17 @@ def build_reference_markdown(doctree):
             result += "\n</div>\n"
     return result
 
+def build_typescript_decls(doctree):
+    result = ""
+    for entity in doctree:
+        if "enum" in entity["tags"]:
+            name = entity["name"]
+            result += f"enum {name} {{\n"
+            for valname in entity["children"]:
+                result += f"    {valname},\n"
+            result += f"}}\n\n"
+    return result
+
 def build_reference():
     doctree = gather_docstrings([
         ROOT_DIR + 'web/filament-js/jsbindings.cpp',
@@ -468,6 +479,10 @@ def build_reference():
     outfile = os.path.join(OUTPUT_DIR, f'reference.html')
     with open(outfile, 'w') as fout:
         fout.write(rendered)
+    typescript = build_typescript_decls(doctree)
+    outfile = os.path.join(OUTPUT_DIR, f'filament.ts')
+    with open(outfile, 'w') as fout:
+        fout.write(typescript)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__,
